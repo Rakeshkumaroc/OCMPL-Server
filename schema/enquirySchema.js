@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const enquirySchema = new mongoose.Schema({
   name: { type: String },
-  phone: { type: String },
   email: { type: String, required: true },
-  subject: { type: String }, 
+  services: { type: String }, 
+   subject: { type: String, default:" general enquire" }, 
   message: { type: String },
   status: {
     type: String,
