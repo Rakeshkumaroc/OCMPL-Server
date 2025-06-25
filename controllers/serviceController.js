@@ -19,35 +19,75 @@ const addService = async (req, res, next) => {
       timeZone: "Asia/Kolkata",
     });
 
-    const updateData = {
-      ...req.body,
-      addedTime,
+    const { title, description, serviceName, workTitle, workUrl } = req.body;
+
+    // Validate required fields
+    if (!title || !description || !serviceName || !workTitle) {
+      throw new ApiError(
+        "Title, description, service name, and work title are required",
+        400
+      );
+    }
+
+    // Construct work object
+    const work = {
+      workTitle,
+      workUrl: workUrl || "", 
     };
 
-    // Add uploaded image path to work.workImg
-    if (req.files?.workImg) {
+    const updateData = {
+      title,
+      description,
+      serviceName,
+      work,
+      addedTime,
+    };
+ if (req.files?.workImg) {
       updateData.work = {
         ...updateData.work,
         workImg: req.files.workImg[0].path,
       };
     }
-
     const result = await serviceSchema.create(updateData);
     res
       .status(201)
       .json(new ApiResponse(201, "Service added successfully", result));
   } catch (error) {
-    next(new ApiError("Failed to add service", 500));
+    next(
+      new ApiError(
+        error.message || "Failed to add service",
+        error.status || 500
+      )
+    );
   }
 };
 
 const editService = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const updateData = {
-      ...req.body,
+    const { title, description, serviceName, workTitle, workUrl } = req.body;
+
+    // Validate required fields
+    if (!title || !description || !serviceName || !workTitle) {
+      throw new ApiError(
+        "Title, description, service name, and work title are required",
+        400
+      );
+    }
+
+    // Construct work object
+
+    const work = {
+      workTitle,
+      workUrl: workUrl || "",
     };
 
+    const updateData = {
+      title,
+      description,
+      serviceName,
+      work,
+    };
     if (req.files?.workImg) {
       updateData.work = {
         ...updateData.work,
@@ -55,17 +95,26 @@ const editService = async (req, res, next) => {
       };
     }
 
-    const result = await serviceSchema.findOneAndUpdate(
-      { _id: id },
+    const result = await serviceSchema.findByIdAndUpdate(
+      id,
       { $set: updateData },
-      { new: true }
+      { new: true, runValidators: true }
     );
+
+    if (!result) {
+      throw new ApiError("Service not found", 404);
+    }
 
     res
       .status(200)
       .json(new ApiResponse(200, "Service updated successfully", result));
   } catch (error) {
-    next(new ApiError("Failed to edit service", 500));
+    next(
+      new ApiError(
+        error.message || "Failed to update service",
+        error.status || 500
+      )
+    );
   }
 };
 

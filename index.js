@@ -22,6 +22,7 @@ const corsOptions = {
     origin: [
         'http://localhost:5173',
         'http://client.masfinancialservice.in',
+        'https://ocmpl.orangecap.media',
         'https://orangecap.media',
         'https://orange-cap-react.vercel.app'
     ],
@@ -49,7 +50,7 @@ app.use("/api/projects", projectRoutes);
 app.use(errorHandler);
 
 // Start Server
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 4006;
 app.listen(PORT, () => {
     console.log('Server is open at localhost:' + PORT);
 });
