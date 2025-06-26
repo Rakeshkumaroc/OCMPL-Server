@@ -3,8 +3,9 @@ const mongoose = require("mongoose");
 const enquirySchema = new mongoose.Schema({
   name: { type: String },
   email: { type: String, required: true },
-  services: { type: String }, 
-   subject: { type: String }, 
+  number: { type: String }, // Added number field
+  services: { type: String },
+  subject: { type: String },
   message: { type: String },
   status: {
     type: String,

@@ -32,8 +32,12 @@ const addService = async (req, res, next) => {
     // Construct work object
     const work = {
       workTitle,
-      workUrl: workUrl || "", 
+      workUrl: workUrl || "",
     };
+
+    if (req.file) {
+      work.workImg = path.join("uploads/service", req.file.filename).replace(/\\/g, "/");
+    }
 
     const updateData = {
       title,
@@ -42,12 +46,7 @@ const addService = async (req, res, next) => {
       work,
       addedTime,
     };
- if (req.files?.workImg) {
-      updateData.work = {
-        ...updateData.work,
-        workImg: req.files.workImg[0].path,
-      };
-    }
+
     const result = await serviceSchema.create(updateData);
     res
       .status(201)
@@ -76,11 +75,14 @@ const editService = async (req, res, next) => {
     }
 
     // Construct work object
-
     const work = {
       workTitle,
       workUrl: workUrl || "",
     };
+
+    if (req.file) {
+      work.workImg = path.join("uploads/service", req.file.filename).replace(/\\/g, "/");
+    }
 
     const updateData = {
       title,
@@ -88,12 +90,6 @@ const editService = async (req, res, next) => {
       serviceName,
       work,
     };
-    if (req.files?.workImg) {
-      updateData.work = {
-        ...updateData.work,
-        workImg: req.files.workImg[0].path,
-      };
-    }
 
     const result = await serviceSchema.findByIdAndUpdate(
       id,
@@ -127,10 +123,9 @@ const deleteServices = async (req, res, next) => {
     for (const service of services) {
       if (service.work?.workImg) {
         const filename = path.basename(service.work.workImg);
-
         const isUsed = await serviceSchema.exists({
           _id: { $nin: ids },
-          "work.workImg": new RegExp(filename),
+          "work.workImg": new RegExp(filename, "i"),
         });
 
         const fullPath = path.join("uploads/service", filename);
