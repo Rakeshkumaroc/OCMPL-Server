@@ -23,7 +23,7 @@ const addJob = async (req, res, next) => {
 const getJobs = async (req, res, next) => {
   try {
     const result = await jobSchema.find();
-    res.send(result);
+    res.status(200).json(new ApiResponse(200, "Jobs fetched successfully", result));
   } catch (error) {
     next(new ApiError("Failed to fetch jobs", 500));
   }
@@ -32,21 +32,28 @@ const getJobs = async (req, res, next) => {
 const getSingleJob = async (req, res, next) => {
   try {
     const result = await jobSchema.findOne({ _id: req.params.id });
-    res.send(result);
+    if (!result) {
+      throw new ApiError("Job not found", 404);
+    }
+    res.status(200).json(new ApiResponse(200, "Job fetched successfully", result));
   } catch (error) {
-    next(new ApiError("Failed to fetch job", 500));
+    next(error instanceof ApiError ? error : new ApiError("Failed to fetch job", 500));
   }
 };
 
 const editJob = async (req, res, next) => {
   try {
-    const result = await jobSchema.updateOne(
+    const result = await jobSchema.findOneAndUpdate(
       { _id: req.params.id },
-      { $set: req.body }
+      { $set: req.body },
+      { new: true }
     );
-    res.send(result);
+    if (!result) {
+      throw new ApiError("Job not found", 404);
+    }
+    res.status(200).json(new ApiResponse(200, "Job updated successfully", result));
   } catch (error) {
-    next(new ApiError("Failed to update job", 500));
+    next(error instanceof ApiError ? error : new ApiError("Failed to update job", 500));
   }
 };
 
